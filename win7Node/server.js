@@ -2,7 +2,7 @@
 
 const repl = require("repl");
 const Commands = require("./commands");
-const Clementine = require("./clementine/clementine");
+const Clementine = require("./applications/clementine");
 
 // let clem = new Clementine().then((clemReady) => {
 // 	clem = clemReady;
