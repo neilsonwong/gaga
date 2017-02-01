@@ -28,6 +28,7 @@ shuffle_playlist
 stop
 */
 
+const CommandInterface = require('../commandInterface');
 const ClementineClient = require('clementine-remote').Client;
 
 function Clementine(config){
@@ -43,10 +44,15 @@ function Clementine(config){
             this.settings[setting] = config[setting]; 
         }
     }
-    this.connect();
+
+    return new Promise(function(resolve, reject){
+        this.connect(resolve, reject);
+    }.bind(this));
 }
 
-Clementine.prototype.connect = function(){
+Clementine.prototype = Object.create(CommandInterface);
+
+Clementine.prototype.connect = function(resolve, reject){
     this.client = ClementineClient({
         host: this.settings.host,
         port: this.settings.port
@@ -60,12 +66,22 @@ Clementine.prototype.connect = function(){
     this.client.on('ready', function () {
         this.ready = true;
         console.log('client ready');
+
+        //bind commands
+        this.Commands = {
+            "CLEMENTINE PLAY" : this.play.bind(this),
+            "CLEMENTINE PAUSE" : this.pause.bind(this),
+            "CLEMENTINE NEXT" : this.next.bind(this),
+            "CLEMENTINE PREV" : this.prev.bind(this),
+        };
+        // console.log(this);
+        resolve(this);
     }.bind(this));
 };
 
-Clementine.prototype.open = function(){
-
-};
+// Clementine.prototype.open = function(){
+//     this.client.
+// };
 
 Clementine.prototype.play = function(){
     return this.primitive("play");

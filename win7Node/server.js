@@ -1,8 +1,20 @@
-'use strict';
+"use strict";
 
-const repl = require('repl');
-const Clementine = require('./clementine/clementine');
+const repl = require("repl");
+const Commands = require("./commands");
+const Clementine = require("./clementine/clementine");
 
-const clem = new Clementine();
+// let clem = new Clementine().then((clemReady) => {
+// 	clem = clemReady;
+// 	Commands.addFunction(clem);
+// });
 
-repl.start('> ').context.clem = clem;
+Promise.all([
+	new Clementine()
+	]).then(funcs => {
+	funcs.forEach(function(val){
+		Commands.addFunction(val);
+	});
+});
+
+repl.start("> ").context.c = Commands;
