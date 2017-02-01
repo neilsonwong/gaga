@@ -3,6 +3,7 @@
 const repl = require("repl");
 const Commands = require("./commands");
 const Clementine = require("./applications/clementine");
+const AudioSwitcher = require("./applications/audioSwitcher");
 
 // let clem = new Clementine().then((clemReady) => {
 // 	clem = clemReady;
@@ -10,8 +11,10 @@ const Clementine = require("./applications/clementine");
 // });
 
 Promise.all([
-	new Clementine()
-	]).then(funcs => {
+		new Clementine(),
+		AudioSwitcher,
+	])
+	.then(funcs => {
 	funcs.forEach(function(val){
 		Commands.addFunction(val);
 	});
