@@ -5,12 +5,12 @@ const robot = require("robotjs");
 
 function AudioSwitcher(){}
 
+AudioSwitcher.switchAudio = function(){
+    robot.keyTap("f9", "control");
+};
+
 AudioSwitcher.Commands = {
     'SWITCH AUDIO' : AudioSwitcher.switchAudio
 };
-
-AudioSwitcher.switchAudio = function(){
-    robot.keyTap("f9", "control");
-}
 
 module.exports = AudioSwitcher;

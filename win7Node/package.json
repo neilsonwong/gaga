@@ -10,6 +10,7 @@
   "author": "neilson",
   "license": "ISC",
   "dependencies": {
-    "clementine-remote": "^0.6.1"
+    "clementine-remote": "^0.6.1",
+    "robotjs": "^0.4.5"
   }
 }
