@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 /*
 basic
 *start the music player
@@ -7,10 +7,14 @@ play
 pause
 next
 prev
+vol +
+vol -
 
 nice to have
 play artist -> make playlist, play
 play song -> make playlist, play
+shuffle
+repeat
 */
 
 /*built into client
@@ -156,6 +160,21 @@ Clementine.prototype.prev = function(){
     return this.primitive("previous");
 };
 
+Clementine.prototype.louder = function(){
+    let newVol = Math.min(this.client.volume + 10, 100);
+    return this.changeVolume(newVol)
+};
+
+Clementine.prototype.softer = function(){
+    let newVol = Math.max(this.client.volume - 10, 0);
+    return this.changeVolume(newVol)
+};
+
+Clementine.prototype.changeVolume = function(vol){
+    console.log("changing vol to "+vol);
+    return this.client.set_volume(vol);
+};
+
 Clementine.prototype.primitive = function(action){
     return new Promise(function(resolve, reject){
         if (this.ready){
@@ -174,7 +193,9 @@ Clementine.prototype.isRunning = function(){
             if (error){
                 reject(error);
             }
-            resolve(stdout.indexOf("clementine.exe") !== -1);
+            let clemRunning = stdout.indexOf("clementine.exe") !== -1;
+            console.log("clem is " + clemRunning ? "running" : "not running");
+            resolve(clemRunning);
         });
     });
 };
@@ -183,7 +204,9 @@ Clementine.prototype.Commands = [
     "CLEMENTINE PLAY",
     "CLEMENTINE PAUSE",
     "CLEMENTINE NEXT",
-    "CLEMENTINE PREV"
+    "CLEMENTINE PREV",
+    "CLEMENTINE VOL UP",
+    "CLEMENTINE VOL DOWN",
 ];
 
 Clementine.prototype.handle = function(cmd){
@@ -207,6 +230,12 @@ Clementine.prototype.handle = function(cmd){
                     break;
                 case "CLEMENTINE PREV":
                     instance.prev();
+                    break;
+                case "CLEMENTINE VOL UP":
+                    instance.louder();
+                    break;
+                case "CLEMENTINE VOL DOWN":
+                    instance.softer();
                     break;
                 default:
                     console.log(cmd + "not yet implemented");

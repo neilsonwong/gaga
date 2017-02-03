@@ -10,7 +10,8 @@
   "author": "neilson",
   "license": "ISC",
   "dependencies": {
-    "clementine-remote": "^0.6.1",
+    "clementine-remote": "git://github.com/neilsonwong/node-clementine-remote.git",
+    "request": "^2.79.0",
     "robotjs": "^0.4.5"
   }
 }

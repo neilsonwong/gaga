@@ -1,7 +1,7 @@
-'use strict';
+"use strict";
 
 const config = require("../config");
-const CommandInterface = require('../commandInterface');
+const CommandInterface = require("../commandInterface");
 const robot = require("robotjs");
 
 function AudioSwitcher(){}
@@ -11,6 +11,6 @@ AudioSwitcher.switchAudio = function(){
     robot.keyTap(this.settings.switchAudioDeviceHotkey.key, this.settings.switchAudioDeviceHotkey.key);
 };
 
-AudioSwitcher.Commands = ['SWITCH AUDIO'];
+AudioSwitcher.Commands = ["SWITCH AUDIO"];
 
 module.exports = AudioSwitcher;
