@@ -2,14 +2,21 @@
 
 function Commands(){}
 
-Commands.addFunction = function(){
-    let a, fun, cmd;
-    for (a = 0; a < arguments.length; ++a){
+Commands.init = function (modules){
+    Commands.modules = modules;
+    //init commands for each module
+    //sorry no hotloading
+
+    Commands.addFunctions();
+}
+
+Commands.addFunctions = function(){
+    let a, modName, cmd;
+    for (modName in Commands.modules){
         try {
-            fun = arguments[a];
-            for (cmd in fun.Commands){
-                Commands.CMD[cmd] = fun.Commands[cmd];
-            }
+            Commands.modules[modName].Commands.map((cmd) => {
+                Commands.CMD[cmd] = modName;
+            });
         }
         catch(e){
             console.log("error");
@@ -19,7 +26,8 @@ Commands.addFunction = function(){
 
 Commands.handle = function(cmd){
     if (Commands.CMD[cmd]){
-        Commands.CMD[cmd]();
+        let moduleName = Commands.CMD[cmd];
+        this.modules[moduleName].handle(cmd);
     }
     else {
         console.log("unknown command " + cmd)
