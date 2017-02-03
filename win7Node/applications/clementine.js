@@ -238,7 +238,7 @@ Clementine.prototype.handle = function(cmd){
                     instance.softer();
                     break;
                 default:
-                    console.log(cmd + "not yet implemented");
+                    console.log(cmd + " not yet implemented in clementine");
             }
         });
     }
