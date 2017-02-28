@@ -21,7 +21,7 @@ Computer.sleep = function sleep(callback){
     });
 };
 
-Computer.Commands = ["COMPUTER SHUTDOWN, COMPUTER SLEEP"];
+Computer.Commands = ["COMPUTER SHUTDOWN", "COMPUTER SLEEP"];
 
 Computer.handle = function(cmd){
     if (Computer.Commands.indexOf(cmd) === -1){

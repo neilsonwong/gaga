@@ -16,6 +16,7 @@ Commands.addFunctions = function(){
         try {
             Commands.modules[modName].Commands.map((cmd) => {
                 Commands.CMD[cmd] = modName;
+                console.log(cmd + " loaded");
             });
         }
         catch(e){
@@ -24,10 +25,11 @@ Commands.addFunctions = function(){
     }
 };
 
-Commands.handle = function(cmd){
+Commands.handle = function(cmd, extras){
     if (Commands.CMD[cmd]){
+        console.log("handling " + cmd)
         let moduleName = Commands.CMD[cmd];
-        this.modules[moduleName].handle(cmd);
+        this.modules[moduleName].handle(cmd, extras);
     }
     else {
         console.log("unknown command " + cmd)
