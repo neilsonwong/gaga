@@ -12,9 +12,18 @@ public class Vocab {
     public Vocab() {
         initActions();
         initTargets();
+        initModifiers();
     }
 
-    private void initActions() {
+    public Fragment get(String key){
+        Fragment f = list.get(key);
+        if (f == null){
+            f = new Fragment(key);
+        }
+        return f;
+    }
+
+    private void initActions() {    //actions should generally be verbs
         list.put("play", new Action("play", Action.ACCEPT_TARGET)
                 .addTargetable(Target.MEDIA, Target.MUSIC, Target.VIDEO));
         list.put("pause", new Action("pause", Action.ACCEPT_TARGET)
@@ -39,13 +48,6 @@ public class Vocab {
         list.put("switch", new Action("switch", "switch audio", Action.NO_TARGETS)
                 .addPostReq("audio"));
 
-        list.put("last", new Action("last", "previous", Action.REQUIRE_TARGET)
-                .addTargetable(Target.MUSIC, Target.VIDEO)
-                .addPostReq("track")
-                .addPostReq("song")
-                .addPostReq("ep")
-                .addPostReq("episode"));
-
         list.put("go", new Action("go", null, Action.REQUIRE_TARGET)
                 .addPostReq("back")
                 .addPostReq("forward")
@@ -56,7 +58,7 @@ public class Vocab {
                 .addPostReq("back"));
 
         list.put("volume", new Action("volume", null, Action.REQUIRE_TARGET)
-                .addTargetable(Target.VECTOR)
+                .addModifier(Modifier.VECTOR)
                 .addPostReq("up")
                 .addPostReq("down"));
 
@@ -89,22 +91,7 @@ public class Vocab {
                 .addTargetable(Target.APPLICATION));
     }
 
-    private void initTargets() {
-        //vectors
-        list.put("down", new Target("down", Target.VECTOR)
-                .addAction("volume", -1));
-
-        list.put("up", new Target("up", Target.VECTOR)
-                .addAction("volume", 1));
-
-        list.put("on", new Target("on", Target.VECTOR)
-                .addAction("turn", 1)
-                .addAction("power", 1));
-
-        list.put("off", new Target("off", Target.VECTOR)
-                .addAction("turn", 0)
-                .addAction("power", 0));
-
+    private void initTargets() {    //targets should generally by nouns
         //music
         list.put("music", new Target("music", Target.MUSIC)
                 .addAction("play", "generic")
@@ -162,5 +149,33 @@ public class Vocab {
         "subtitle",
         "audio" //track
         */
+    }
+
+    private void initModifiers(){
+        Command prev = new Command("previous");
+        list.put("last", new Modifier("last", Modifier.ORDER)
+                .addTarget("track", prev)
+                .addTarget("song", prev)
+                .addTarget("ep", prev)
+                .addTarget("episode", prev)
+                .addPostReq("track")
+                .addPostReq("song")
+                .addPostReq("ep")
+                .addPostReq("episode"));
+
+        //vectors = mod
+        list.put("down", new Modifier("down", Modifier.VECTOR)
+                .addTarget("volume", -1));
+
+        list.put("up", new Modifier("up", Modifier.VECTOR)
+                .addTarget("volume", 1));
+
+        list.put("on", new Modifier("on", Modifier.VECTOR)
+                .addTarget("turn", 1)
+                .addTarget("power", 1));
+
+        list.put("off", new Modifier("off", Modifier.VECTOR)
+                .addTarget("turn", 0)
+                .addTarget("power", 0));
     }
 }

@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 public class Target extends Fragment{
     public final static int APPLICATION = 0;
-    public final static int VECTOR = 1;
+//    public final static int VECTOR = 1;
     public final static int MUSIC = 2;
     public final static int VIDEO = 3;
     public final static int MEDIA = 4;
@@ -17,7 +17,7 @@ public class Target extends Fragment{
 
     public ArrayList<ActionResponsePair> allowedActions;
     public int targetType;
-
+    public String subAction = null;
 
     public Target(String word) {
         super(word);
@@ -27,6 +27,13 @@ public class Target extends Fragment{
         super(word);
         this.targetType = pTargetType;
         this.allowedActions = new ArrayList<ActionResponsePair>();
+    }
+
+    public Target setSubAction(String subAction){
+        if (this.subAction == null){
+            this.subAction = subAction;
+        }
+        return this;
     }
 
     public Target addAction(String action, Object response){

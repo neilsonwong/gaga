@@ -14,6 +14,7 @@ public class Action extends Fragment {
 
     public int targetType;
     public ArrayList<Integer> targetable;
+    public ArrayList<Integer> modifiers;
     public int acceptedTarget;
     public Fragment target = null;
     public String actionWord;
@@ -44,6 +45,11 @@ public class Action extends Fragment {
         return this;
     }
 
+    public Action addModifier(int modifier){
+        modifiers.add(modifier);
+        return this;
+    }
+
     public boolean setTarget(Fragment f){
         if (this.targetType > -1){
             if (this.target == null){
@@ -52,5 +58,10 @@ public class Action extends Fragment {
             }
         }
         return false;
+    }
+
+    @Override
+    public Command response(){
+        return new Command();
     }
 }

@@ -45,6 +45,10 @@ public class Fragment {
         this.optional.add(new Requirement(pre, post));
     }
 
+    public Command response(){
+        return new Command();
+    }
+
     public boolean satisfiesReqs(){
         int reqLen = this.requires.size();
         int i;
