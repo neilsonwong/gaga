@@ -15,12 +15,15 @@ public class Fragment {
     //reqs = multipart
     public ArrayList<Requirement> requires = new ArrayList<Requirement>();
     public ArrayList<Requirement> optional = new ArrayList<Requirement>();
+    public ArrayList<Integer> modifiable;
+    public ArrayList<Modifier> modifiers;
     public Fragment prev = null;
     public Fragment next = null;
 
     public Fragment(String word){
         base = word;
-        
+        modifiers = new ArrayList<Modifier>();
+        modifiable = new ArrayList<Integer>();
     }
 
     public void chain(Fragment pre, Fragment post){
@@ -56,7 +59,29 @@ public class Fragment {
     public void addOption(String[] pre, String[] post){
         this.optional.add(new Requirement(pre, post));
     }
+    
+    public boolean isAcceptable(Target t){
+    	return false;
+    }
+    
+    public boolean isAcceptable(Modifier t){
+    	return false;
+    }
+    
+    public boolean findRelated(Fragment head){
+    	return false;
+    }
 
+    public Fragment addModifiable(int modType){
+    	modifiable.add(modType);
+    	return this;
+    }
+    
+    public Fragment addModifier(Modifier m){
+        modifiers.add(m);
+        return this;
+    }
+    
     public Command response(){
         return new Command();
     }
@@ -75,6 +100,11 @@ public class Fragment {
 
     public String getBase(){
         return this.base;
+    }
+    
+    @Override
+    public String toString(){
+    	return this.getBase();
     }
 
     public void resolve(){

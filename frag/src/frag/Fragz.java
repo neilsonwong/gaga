@@ -4,14 +4,31 @@ public class Fragz {
 	public static Vocab vocab = new Vocab();
 	
 	public static void main(String[] args) {
-        String input = "turn on my computer";
+        String input = "play the previous episode";
         
         Fragment head = buildChain(input);
         Fragment cursor = head;
         while (cursor != null){
-        	System.out.println(cursor.getBase());
+        	cursor.findRelated(head);
+//        	System.out.println(cursor.toString());
         	cursor = cursor.next;
-        }        
+        }
+        
+        cursor = head;
+        while (cursor != null){
+//        	System.out.println(cursor.toString());
+        	cursor = cursor.next;
+        }
+        
+        cursor = head;
+        while (cursor != null){
+        	Command c = cursor.response();
+        	if (!c.isBlank())
+        		System.out.println(c.toString() + "\n");
+        	cursor = cursor.next;
+        }
+        
+        
     }
 	
 	private static Fragment buildChain(String line){

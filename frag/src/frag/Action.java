@@ -14,9 +14,8 @@ public class Action extends Fragment {
 
     public int targetType;
     public ArrayList<Integer> targetable;
-    public ArrayList<Integer> modifiers;
-    public int acceptedTarget;
-    public Fragment target = null;
+    public String acceptedTarget = null;
+    public Target target = null;
     public String actionWord;
 
     public Action(String word) {
@@ -33,7 +32,6 @@ public class Action extends Fragment {
         targetType = pTargetType;
         actionWord = pActionWord;
         targetable = new ArrayList<Integer>();
-        modifiers = new ArrayList<Integer>();
     }
 
     public Action addTargetable(int ... targets){
@@ -46,24 +44,82 @@ public class Action extends Fragment {
         }
         return this;
     }
-
-    public Action addModifier(int modifier){
-        modifiers.add(modifier);
-        return this;
+    
+    @Override
+    public boolean isAcceptable(Target t){
+    	return this.targetable.contains(t.targetType);
     }
-
-    public boolean setTarget(Fragment f){
+    
+    @Override
+    public boolean isAcceptable(Modifier m){
+    	return this.modifiable.contains(m.getModType());
+    }
+    
+    public boolean setTarget(Target f){
         if (this.targetType > -1){
             if (this.target == null){
                 this.target = f;
+                acceptedTarget = f.getBase();
                 return true;
             }
         }
         return false;
     }
+    
+    public String getAction(){
+    	return this.actionWord;
+    }
 
     @Override
     public Command response(){
-        return new Command();
+    	//if there is no target or modifier set the command    
+    	if (this.target == null && this.modifiers.isEmpty()){
+    		return new Command(this.actionWord);
+    	}
+    	
+        Command c = new Command();
+        String cAction = this.actionWord;
+        String cTarget = null;
+        
+        c.setAction(cAction);
+        
+        int i;
+        for(i = 0; i < this.modifiers.size(); ++i){
+        	c = this.modifiers.get(i).modify(c);
+        	this.actionWord = c.getAction();
+        }
+        
+        if (this.target != null){
+        	cTarget = this.target.getTarget(this);
+        }
+        
+        for(i = 0; i < this.modifiers.size(); ++i){
+        	c = this.modifiers.get(i).modify(c);
+        	this.actionWord = c.getAction();
+        }
+        
+        c.setTarget(cTarget);
+        
+        return c;
+    }
+    
+    @Override
+    public String toString(){
+    	String ret = this.getBase();
+    	
+    	if (this.modifiers.size() > 0){
+    		ret += " ( ";
+    		int i;
+    		for (i = 0; i < modifiers.size(); ++i){
+    			ret += this.modifiers.get(i).getMod() + " , " ;
+    		}
+    		ret += " )";
+    	}
+    	
+    	if (this.target != null){
+    		ret += " > " + this.target.toString();
+    	}
+    	
+    	return ret;
     }
 }

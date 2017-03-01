@@ -41,12 +41,76 @@ public class Target extends Fragment{
         return this;
     }
 
-    public void respond(){
-
+    public String getTarget(Action boundTo){
+    	//deal with modifiers first
+    	modifierTakeover(boundTo);
+    	
+    	int i;
+    	String tmp;
+    	
+    	for (i = 0; i < this.allowedActions.size(); ++i){
+    		tmp = this.allowedActions.get(i).action;
+    		if (tmp.equals(boundTo.getAction())){
+    			return this.allowedActions.get(i).response.toString();
+    		}
+    	}
+    	return "";
     }
-    //TODO: implement find attachable action
-
-    //TODO: implement some way to change
+    
+    private void modifierTakeover(Action boundTo){
+    	if (!this.modifiers.isEmpty()){
+    		int len = this.modifiers.size();
+    		int i;
+    		for (i = 0; i < len; ++i){
+    			this.modifiers.get(i).getMod().equals("cmd");
+    			//this will change the original action
+    			//attach the takeover
+    			
+    			//boundRes should be the same as the one bound to target
+    			boundTo.addModifier(this.modifiers.get(i));
+    		}
+    	}
+    }
+    
+    @Override
+    public boolean isAcceptable(Modifier m){
+    	return true;
+    }
+    
+    @Override
+    public boolean findRelated(Fragment head){
+    	Fragment cursor = this.prev;
+    	Fragment cursor2 = this.next;
+        while (cursor != null || cursor2 != null){
+        	if (cursor != null && cursor.isAcceptable(this)){
+        		((Action)cursor).setTarget(this);
+        		return true;
+        	}
+        	else if (cursor2 != null && cursor2.isAcceptable(this)){
+        		((Action)cursor).setTarget(this);
+        		return true;
+        	}
+        	cursor = cursor.prev;
+        	cursor2 = cursor2.next;
+        }
+        return false;
+    }
+    
+    @Override
+    public String toString(){
+    	String ret = this.getBase();
+    	
+    	if (this.modifiers.size() > 0){
+    		ret += " ( ";
+    		int i;
+    		for (i = 0; i < modifiers.size(); ++i){
+    			ret += this.modifiers.get(i).getMod() + " , " ;
+    		}
+    		ret += " )";
+    	}
+    	
+    	return ret;
+    }
 }
 
 class ActionResponsePair {
