@@ -2,7 +2,6 @@ package scintillate.amber.SpeechContext;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Created by rin on 2/27/2017.
@@ -13,18 +12,33 @@ public class Fragment {
     public boolean finalized = false;
 
     //reqs = multipart
-    public ArrayList<Requirement> requires;
-    public ArrayList<Requirement> optional;
-    public Fragment prev;
-    public Fragment next;
+    public ArrayList<Requirement> requires = new ArrayList<Requirement>();
+    public ArrayList<Requirement> optional = new ArrayList<Requirement>();
+    public ArrayList<Integer> modifiable;
+    public ArrayList<Modifier> modifiers;
+    public Fragment prev = null;
+    public Fragment next = null;
 
     public Fragment(String word){
         base = word;
+        modifiers = new ArrayList<Modifier>();
+        modifiable = new ArrayList<Integer>();
     }
 
     public void chain(Fragment pre, Fragment post){
-        this.prev = pre;
-        this.next = post;
+        chainPre(pre);
+        chainPost(post);
+    }
+
+    public void chainPre(Fragment pre){
+        if (pre != null){
+            this.prev = pre;
+        }
+    }
+    public void chainPost(Fragment post){
+        if (post != null){
+            this.next = post;
+        }
     }
 
     public Fragment addPostReq(String... postReqs){
@@ -43,6 +57,28 @@ public class Fragment {
 
     public void addOption(String[] pre, String[] post){
         this.optional.add(new Requirement(pre, post));
+    }
+
+    public boolean isAcceptable(Target t){
+        return false;
+    }
+
+    public boolean isAcceptable(Modifier t){
+        return false;
+    }
+
+    public boolean findRelated(Fragment head){
+        return false;
+    }
+
+    public Fragment addModifiable(int modType){
+        modifiable.add(modType);
+        return this;
+    }
+
+    public Fragment addModifier(Modifier m){
+        modifiers.add(m);
+        return this;
     }
 
     public Command response(){
@@ -65,8 +101,9 @@ public class Fragment {
         return this.base;
     }
 
-    public void resolve(){
-        //take in a context and change it?
+    @Override
+    public String toString(){
+        return this.getBase();
     }
 
     @Override

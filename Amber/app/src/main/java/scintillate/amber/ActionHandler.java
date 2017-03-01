@@ -5,7 +5,10 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.concurrent.CompletableFuture;
 
+import scintillate.amber.SpeechContext.Command;
+import scintillate.amber.SpeechContext.FragmentChain;
 import scintillate.amber.dispatchers.*;
 
 import static scintillate.amber.ActionHandler.ACTION_WORDS;
@@ -19,231 +22,50 @@ import static scintillate.amber.ActionHandler.NOUN;
 public class ActionHandler {
     //contextual properties
     private static String TAG = "Action Handler";
-    public static String mostRecentApplication;
-    public static LinkedList<CommandContext> commandQueue = new LinkedList<CommandContext>();
+    private static HandlerContext currentContext = null;
 
-    public static int handle(String command){
+    public static int handle(String command) {
         Log.i(TAG, "handling: " + command);
-        //get the context of the command
-        CommandContext cc = new CommandContext(command);
-        Log.i(TAG, "extras: " + cc.extras.size());
-
-        //dispatch to appropriate command
-        return dispatch(cc);
+        FragmentChain fc = new FragmentChain(command);
+        Command c = fc.getCommand(currentContext);
+        return interpretCommand(c);
     }
 
-
-    private static String findTargetFromExtras(ArrayList<String> extras){
-        //if nothing in target, try to use current application
-        if (extras.isEmpty()){
-            return mostRecentApplication;
-        }
-        return null;
-    }
-
-    public static void computerAwake(){
-        CommandContext cc = commandQueue.poll();
-        if (cc != null){
-            dispatch(cc);
-        }
-    }
-
-    private static int dispatch(CommandContext cc){
-        Log.i(TAG, "dispatching " + cc.action);
-        Log.i(TAG, "dispatching " + cc.target);
-//        Log.i(TAG, "dispatching " + cc.extras.get(0));
-        if (cc.target == null){
-            String newTarget = findTargetFromExtras(cc.extras);
-            cc.setTarget(newTarget == null ? "nothing" : newTarget);
-        }
-        switch(cc.action){
-            case "play":
-                //play what
-                if (cc.target.equals("clementine")){
-                    if (cc.extras.isEmpty()){
-                        ClementineDispatcher.play();
-                    }
-                    //deal with artists, files later
-                }
-                else if (cc.target.equals("mpc")){
-                    if (cc.extras.isEmpty()){
-                        MediaPlayerClassicDispatcher.playPause();
-                    }
-                    else if (cc.extras.size() == 1){
-                        MediaPlayerClassicDispatcher.openFile(cc.extras.get(0));
-                    }
-                }
-                else if (cc.target.equals("last song")){
-                    ClementineDispatcher.prev();
-                }
+    public static int interpretCommand(Command c){
+        int res = 0;
+        switch (c.getApp()){
+            case "music":
+                res = ClementineDispatcher.handle(c);
+                currentContext.currentApplication = ClementineDispatcher.getApp();
                 break;
-            case "stop":
-            case "pause":
-                if (cc.target.equals("clementine")){
-                    ClementineDispatcher.pause();
-                }
-                else if (cc.target.equals("mpc")){
-                    MediaPlayerClassicDispatcher.playPause();
-                }
+            case "computer":
+                res = ComputerDispatcher.handle(c);
+                currentContext.currentApplication = ComputerDispatcher.getApp();
                 break;
-            case "next":
-            case "skip":
-                if (cc.target.equals("clementine")){
-                    ClementineDispatcher.next();
-                }
-                else if (cc.target.equals("mpc")){
-                    MediaPlayerClassicDispatcher.nextFile();
-                }
+            case "video":
+                res = MediaPlayerClassicDispatcher.handle(c);
+                currentContext.currentApplication = MediaPlayerClassicDispatcher.getApp();
                 break;
-            case "last":
-            case "previous":
-                if (cc.target.equals("clementine")){
-                    ClementineDispatcher.prev();
-                }
-                else if (cc.target.equals("mpc")){
-                    MediaPlayerClassicDispatcher.previousFile();
-                }
-                break;
-            case "go back":
-                ClementineDispatcher.prev();
-                break;
-            case "louder":
-            case "volume up":
-                if (cc.target.equals("clementine")){
-                    ClementineDispatcher.volUp();
-                }
-                else if (cc.target.equals("mpc")){
-                    //too bad
-                }
-                break;
-            case "softer":
-            case "volume down":
-                if (cc.target.equals("clementine")){
-                    ClementineDispatcher.volDown();
-                }
-                else if (cc.target.equals("mpc")){
-                    //too bad
-                }
-                break;
-            case "open":
-                //we are depending on find target from extras
-//                if (cc.target.equals("clementine")){
-                      //too bad
-//                }
-//                if (cc.target.equals("mpc")){
-                if (cc.extras.size() > 0){
-                    MediaPlayerClassicDispatcher.openFile(cc.extras.get(0));
-                }
-                break;
-            case "go to the beginning":
-            case "go to the start":
-                if (cc.target.equals("clementine")){
-                    ClementineDispatcher.play();
-                }
-                else if (cc.target.equals("mpc")){
-                    MediaPlayerClassicDispatcher.jumpToStart();
-                }
-                break;
-            case "jump ahead":
-                //TODO: LATER
-                break;
-            case "screenshot":
-                MediaPlayerClassicDispatcher.screencap();
-                break;
-            case "fullscreen":
-            case "full screen":
-                MediaPlayerClassicDispatcher.fullscreen();
-                break;
-            case "close":
-            case "exit":
-
-                break;
-            case "shutdown":
-            case "shut down":
-            case "turn off":
-            case "power off":
-                if (cc.target.equals("computer")){
-                    ComputerDispatcher.turnOff();
-                }
-                break;
-            case "turn on":
-            case "power on":
-                if (cc.target.equals("computer")){
-                    ComputerDispatcher.turnOn();
-                }
-                break;
-            case "switch audio":
-                ComputerDispatcher.switchAudio();
+            case "fun":
+                res = FunDispatcher.handle(c);
+                currentContext.currentApplication = FunDispatcher.getApp();
                 break;
             default:
-                return 1;
+                res = 0;
         }
-        return 0;
+        return res;
     }
 
-    public static ArrayList<String> ACTION_WORDS = new ArrayList<String>(Arrays.asList(
-        "play",
-        "pause",
-        "stop",
-        "next",
-        "skip",
-        "previous",
-        "go",
-        "louder",
-        "softer",
-        "volume",
-        "open",
-        "jump",
-        "screenshot",
-        "fullscreen",
-        "close",
-        "exit",
-        "shutdown",
-        "switch",
+    public class HandlerContext {
+        public String currentApplication;
 
-        //commented means multipart
-        "shut", //down
-        "turn", //on, off
-        "power",    //on
-        "full" //screen
-    ));
-
-    public static ArrayList<String> MODIFIER = new ArrayList<String>(Arrays.asList(
-        "down",
-        "up",
-        "on",
-        "off",
-        "track"
-    ));
-
-    public static ArrayList<String> NOUN = new ArrayList<String>(Arrays.asList(
-        "music",
-        "last",
-        "song",
-        "ep",
-        "episode",
-        "computer",
-        "file",
-        "media", // player classic
-        "playing",
-        "subtitle",
-        "audio" //track
-    ));
-
-    public static ArrayList<String> IGNORE = new ArrayList<String>(Arrays.asList(
-        "my",
-        "the",
-        "this",
-        "some"
-    ));
-
-    public static ArrayList<String> MISC_WORDS = new ArrayList<String>(Arrays.asList(
-        "amelia",
-        "emilia",
-        "hello"
-    ));
+        public HandlerContext(){}
+    }
 }
 
+
+
+/*
 class CommandContext {
     public String commandText;
     public String action = null;
@@ -466,3 +288,4 @@ class CommandContext {
         return false;
     }
 }
+*/

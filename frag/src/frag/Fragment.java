@@ -107,10 +107,6 @@ public class Fragment {
     	return this.getBase();
     }
 
-    public void resolve(){
-        //take in a context and change it?
-    }
-
     @Override
     public boolean equals(Object obj){
         if (obj == null) {

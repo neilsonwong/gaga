@@ -6,12 +6,22 @@ import java.net.InetAddress;
 
 import scintillate.amber.HttpTask;
 import scintillate.amber.MagicPacketTask;
+import scintillate.amber.SpeechContext.Command;
 
 /**
  * Created by rin on 2/26/2017.
  */
 
 public class ComputerDispatcher {
+
+    public static String getApp(){
+        return "computer";
+    }
+
+    public static int handle(Command c){
+        return 0;
+    }
+
     public static void turnOn(){
         String mac = "BC-5F-F4-AE-61-0F";
         new MagicPacketTask().execute(mac);

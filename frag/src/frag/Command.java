@@ -72,4 +72,15 @@ public class Command {
     	}
     	return this;
     }
+    
+    public int score(){
+    	int score = 0;
+    	if (this.action != null)
+    		++score;
+    	if (this.target != null)
+    		++score;
+    	if (this.mod != null)
+    		++score;
+    	return score;
+    }
 }

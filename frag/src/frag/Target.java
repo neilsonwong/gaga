@@ -82,16 +82,21 @@ public class Target extends Fragment{
     	Fragment cursor = this.prev;
     	Fragment cursor2 = this.next;
         while (cursor != null || cursor2 != null){
-        	if (cursor != null && cursor.isAcceptable(this)){
-        		((Action)cursor).setTarget(this);
-        		return true;
+        	if (cursor != null){
+        		if (cursor.isAcceptable(this)){
+	        		((Action)cursor).setTarget(this);
+	        		return true;
+	        	}
+        		cursor = cursor.prev;
         	}
-        	else if (cursor2 != null && cursor2.isAcceptable(this)){
-        		((Action)cursor).setTarget(this);
-        		return true;
+        	else if (cursor2 != null){
+        		if (cursor2.isAcceptable(this)){
+	        		((Action)cursor).setTarget(this);
+	        		return true;
+	        	}
+        		cursor2 = cursor2.next;
         	}
-        	cursor = cursor.prev;
-        	cursor2 = cursor2.next;
+        	
         }
         return false;
     }

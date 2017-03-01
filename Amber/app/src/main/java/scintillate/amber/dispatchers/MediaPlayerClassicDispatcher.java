@@ -3,6 +3,7 @@ package scintillate.amber.dispatchers;
 import java.util.HashMap;
 
 import scintillate.amber.HttpTask;
+import scintillate.amber.SpeechContext.Command;
 
 /**
  * Created by rin on 2/26/2017.
@@ -11,6 +12,14 @@ import scintillate.amber.HttpTask;
 public class MediaPlayerClassicDispatcher {
     //SET_VOLUME: -2,       later
     //SEEK: -1,         later
+
+    public static String getApp(){
+        return "video";
+    }
+
+    public static int handle(Command c){
+        return 0;
+    }
 
     public static void openFile(String file){
         HashMap<String, String> extras = new HashMap<String, String>();
