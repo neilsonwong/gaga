@@ -80,4 +80,14 @@ public class SayStuff {
         tts[1].shutdown();
         tts[2].shutdown();
     }
+
+    public static String getLang(int lang){
+        if (lang == 1)
+            return "EN";
+        if (lang == 2)
+            return "HK";
+        if (lang == 3)
+            return "JP";
+        return "EN";
+    }
 }

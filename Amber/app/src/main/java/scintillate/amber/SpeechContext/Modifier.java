@@ -13,6 +13,7 @@ public class Modifier extends Fragment{
     private int modType;
     private ArrayList<ActionResponsePair> allowedTargets  = new ArrayList<ActionResponsePair>();
     private Object boundResponse;
+    public boolean isGeneric = false;
 
     public Modifier(String word, int type) {
         super(word);

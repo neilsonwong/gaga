@@ -1,6 +1,7 @@
 package scintillate.amber.dispatchers;
 
 import scintillate.amber.SayStuff;
+import scintillate.amber.SoundPlayer;
 import scintillate.amber.SpeechContext.Command;
 
 /**
@@ -13,8 +14,33 @@ public class FunDispatcher {
         return "fun";
     }
 
-    public static int handle(Command c){
-        return 0;
+    public static int handle(String cmd){
+        int runStatus = 0;
+        switch(cmd){
+            case "amelia":
+            case "emilia":
+                emilia();
+                break;
+            case "hello":
+                hkHello();
+                break;
+            case "maki":
+                maki();
+                break;
+            case "eugene":
+                eugene();
+                break;
+            case "必殺":
+                hissatsu();
+                break;
+            case "sing a song":
+            case "sing me a song":
+                sing();
+                break;
+            default:
+                runStatus = 1;
+        }
+        return runStatus;
     }
 
     public static void emilia(){
@@ -27,5 +53,17 @@ public class FunDispatcher {
 
     public static void maki() {
         SayStuff.justSayThis("真木ちゃん凄い", "JP");
+    }
+
+    public static void eugene() {
+        SoundPlayer.playThis("genji.ogg");
+    }
+
+    public static void hissatsu() {
+        SoundPlayer.playThis("kamina.mp3");
+    }
+
+    public static void sing() {
+        SoundPlayer.playThis("soybean.mp3");
     }
 }

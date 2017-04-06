@@ -19,6 +19,7 @@ public class Target extends Fragment{
     public ArrayList<ActionResponsePair> allowedActions;
     public int targetType;
     public String subAction = null;
+    public boolean isGeneric = false;
 
     public Target(String word) {
         super(word);

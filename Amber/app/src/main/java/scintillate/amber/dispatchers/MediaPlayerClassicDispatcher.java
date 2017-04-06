@@ -3,6 +3,7 @@ package scintillate.amber.dispatchers;
 import java.util.HashMap;
 
 import scintillate.amber.HttpTask;
+import scintillate.amber.Settings;
 import scintillate.amber.SpeechContext.Command;
 
 /**
@@ -18,7 +19,64 @@ public class MediaPlayerClassicDispatcher {
     }
 
     public static int handle(Command c){
-        return 0;
+        System.out.println("video");
+        int runStatus = 0;
+        switch(c.getAction()){
+            case "play":
+            case "pause":
+                playPause();
+                break;
+            case "stop":
+                stop();
+                break;
+            case "next":
+                nextFile();
+                break;
+            case "previous":
+                previousFile();
+                break;
+            case "close":
+                close();
+                break;
+            case "exit":
+                exit();
+                break;
+            case "fullscreen":
+                fullscreen();
+                break;
+            case "screenshot":
+                screencap();
+                break;
+            case "go":
+            case "jump":
+                if (c.getTarget() != null){
+                    switch(c.getTarget()){
+                        case "beginning":
+                            jumpToStart();
+                            break;
+                        case "back":
+//                            jumpBackwardMedium();
+                            break;
+                        case "forward":
+//                            jumpForwardMedium();
+                            break;
+                        default:
+                            runStatus = 1;
+                    }
+                }
+                break;
+            case "open":
+                if (c.getTarget() != null) {
+                    openFile(c.getTarget());
+                }
+                else {
+                    runStatus = 1;
+                }
+                break;
+            default:
+                runStatus = 1;
+        }
+        return runStatus;
     }
 
     public static void openFile(String file){
@@ -97,10 +155,10 @@ public class MediaPlayerClassicDispatcher {
 
 
     private static void exec(String task){
-        new HttpTask("http://192.168.0.113:3000/mpc/"+task).execute();
+        new HttpTask(Settings.PC_COM_SERVER + "mpc/" + task).execute();
     }
 
     private static void exec(String task, HashMap<String, String> extras){
-        new HttpTask("http://192.168.0.113:3000/mpc/"+task, extras).execute();
+        new HttpTask(Settings.PC_COM_SERVER + "mpc/" + task, extras).execute();
     }
 }

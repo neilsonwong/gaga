@@ -51,7 +51,7 @@ public class Vocab {
         list.put("switch", new Action("switch", "switch audio", Action.NO_TARGETS)
                 .addPostReq("audio"));
 
-        list.put("go", new Action("go", null, Action.REQUIRE_TARGET)
+        list.put("go", new Action("go", "go", Action.REQUIRE_TARGET)
                 .addTargetable(Target.TRACKING)
                 .addPostReq("back")
                 .addPostReq("forward")
@@ -65,7 +65,7 @@ public class Vocab {
                 .addPostReq("up")
                 .addPostReq("down"));
 
-        list.put("jump", new Action("jump", "jump to beginning", Action.REQUIRE_TARGET)
+        list.put("jump", new Action("jump", "jump", Action.REQUIRE_TARGET)
                 .addTargetable(Target.TRACKING)
                 .addPostReq("back")
                 .addPostReq("forward")
@@ -82,25 +82,35 @@ public class Vocab {
         list.put("shut", new Action("shut", "shutdown", Action.ACCEPT_TARGET)
                 .addTargetable(Target.DEVICE)
                 .addPostReq("down"));
-        list.put("turn", new Action("turn", null, Action.ACCEPT_TARGET)
+        list.put("turn", new Action("turn", Action.ACCEPT_TARGET)
                 .addTargetable(Target.DEVICE)
                 .addModifiable(Modifier.VECTOR)
 
                 .addPostReq("on")
                 .addPostReq("off"));
-        list.put("power", new Action("power", null, Action.ACCEPT_TARGET)
+        list.put("power", new Action("power", Action.ACCEPT_TARGET)
                 .addTargetable(Target.DEVICE)
                 .addModifiable(Modifier.VECTOR)
                 .addPostReq("on")
                 .addPostReq("off"));
 
-        list.put("close", new Action("close", null, Action.ACCEPT_TARGET)
+        list.put("close", new Action("close", Action.ACCEPT_TARGET)
                 .addTargetable(Target.APPLICATION));
-        list.put("exit", new Action("exit", null, Action.ACCEPT_TARGET)
+        list.put("exit", new Action("exit", Action.ACCEPT_TARGET)
                 .addTargetable(Target.APPLICATION));
     }
 
     private void initTargets() {    //targets should generally by nouns
+        //applications
+        list.put("clementine", new Target("clementine", Target.APPLICATION)
+                .addAction("close", "music")
+                .addAction("exit", "music"));
+        list.put("media", new Target("media", Target.APPLICATION)
+                .addAction("close", "video")
+                .addAction("exit", "video")
+                .addPostReq("player")
+                .addPostReq("classic"));
+
         //music
         list.put("music", new Target("music", Target.MUSIC)
                 .addAction("play", "music")
@@ -145,20 +155,20 @@ public class Vocab {
 
         //tracking
         list.put("start", new Target("start", Target.TRACKING)
-                .addAction("go", null, "beginning")
-                .addAction("jump", null,"beginning"));
+                .addAction("go", "video", "beginning")
+                .addAction("jump", "video","beginning"));
 
         list.put("beginning", new Target("beginning", Target.TRACKING)
-                .addAction("go", null,"beginning")
-                .addAction("jump", null,"beginning"));
+                .addAction("go", "video","beginning")
+                .addAction("jump", "video","beginning"));
 
         list.put("back", new Target("back", Target.TRACKING)
-                .addAction("go", null,"back")
-                .addAction("jump", null,"back"));
+                .addAction("go", "video","back")
+                .addAction("jump", "video","back"));
 
         list.put("forward", new Target("forward", Target.TRACKING)
-                .addAction("go", null,"forward")
-                .addAction("jump", null,"forward"));
+                .addAction("go", "video","forward")
+                .addAction("jump", "video","forward"));
 
         //device
         list.put("computer", new Target("computer", Target.DEVICE)

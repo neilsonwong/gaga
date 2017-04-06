@@ -12,6 +12,7 @@ public class MessageEvent {
     public final static int MAIN_ACTIVITY = 0;
     public final static int HOTWORD_SERVICE = 1;
     public final static int ACTION_HANDLER = 2;
+    public final static int PRINT_TEXT = 3;
 
     public final static int HOTWORD_EVENT = 99;
     public final static int DO_SOMETHING_EVENT = 100;

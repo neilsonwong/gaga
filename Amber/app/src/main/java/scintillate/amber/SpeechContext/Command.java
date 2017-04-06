@@ -67,16 +67,6 @@ public class Command {
         this.app = a;
     }
 
-    @Override
-    public String toString(){
-        if (this.action != null || this.target != null || this.mod!= null){
-            return "action: " + action + "\n" +
-                    "target: " + target + "\n" +
-                    "mod: " + mod;
-        }
-        return "";
-    }
-
     public boolean isBlank(){
         return !(this.action != null || this.target != null || this.mod!= null);
     }
@@ -111,5 +101,16 @@ public class Command {
 
     public void invalidate(){
         this.valid = false;
+    }
+
+    @Override
+    public String toString(){
+        if (this.action != null || this.target != null || this.mod!= null){
+            return "action: " + action + "\n" +
+                    "target: " + target + "\n" +
+                    "app: " + app + "\n" +
+                    "mod: " + mod;
+        }
+        return "";
     }
 }

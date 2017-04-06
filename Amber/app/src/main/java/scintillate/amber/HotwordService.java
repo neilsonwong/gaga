@@ -25,18 +25,16 @@ import ai.kitt.snowboy.SnowboyDetect;
 
 public class HotwordService extends Service {
     private static final String TAG = "Hotword Service";
-    private boolean isRunning  = false;
     private SnowboyDetector detector;
 
     @Override
     public void onCreate() {
         Log.i(TAG, "Service onCreate");
-        isRunning = true;
     }
 
     @Override
     public void onStart(Intent intent, int startId) {
-        handleStart(intent, startId);
+        handleStart();
     }
 
     @Override
@@ -54,7 +52,7 @@ public class HotwordService extends Service {
                 //Your logic that service will perform will be placed here
                 //In this example we are just looping and waits for 1000 milliseconds in each loop.
                 detector = SnowboyDetector.getInstance();
-                detector.startRecord();
+                handleStart();
             }
         }).start();
 
@@ -79,21 +77,44 @@ public class HotwordService extends Service {
 
     }
 
-    private void handleStart(Intent intent, int startId){
-        detector.startRecord();
-        //send message to activity saying started
-        EventBus.getDefault().post(new MessageEvent("Hotword Service Started", MessageEvent.MAIN_ACTIVITY));
+    private void handleStart(){
+        if (detector != null) {
+            detector.startRecord();
+            //send message to activity saying started
+            EventBus.getDefault().post(new MessageEvent("Hotword Service Started", MessageEvent.MAIN_ACTIVITY));
+        }
+    }
+
+//    private void startMainActivity(){
+//        Log.i(TAG, "starting main activity");
+//        Intent intent = new Intent(this, MainActivity.class);
+//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//        startActivity(intent);
+//    }
+
+    private void bringMainToFront(){
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // You need this if starting
+        //  the activity from a service
+        intent.setAction(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        startActivity(intent);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(MessageEvent event) {
+        if (event.eventCode == MessageEvent.HOTWORD_EVENT) {
+            if (!MainActivity.isActivityVisible()){
+                bringMainToFront();
+            }
+        }
         if (event.recipient == MessageEvent.HOTWORD_SERVICE) {
             Log.i(TAG, "event bus msg: " + event.message);
-            Log.i(TAG, "event bus msg: " + event.eventCode);
             if (event.eventCode == MessageEvent.START_HOTWORD_EVENT){
                 //start listening
                 Log.i(TAG, "we heard it");
-                detector.startRecord();
+                handleStart();
             }
         }
     }

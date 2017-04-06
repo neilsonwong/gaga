@@ -22,8 +22,9 @@ public class SnowboyDetector {
     public static final int RECORDER_BPP = 16;
     public static int RECORDER_SAMPLERATE = 16000;
     public static int RECORDER_CHANNELS = 1;
-    public static int RECORDER_SECONDS = 2;
+    public static int RECORDER_SECONDS = 1;
     public static int RECORDER_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
+    public static int TIMES_CALLED = 0;
 
 
     private AudioRecord recorder = null;
@@ -37,8 +38,8 @@ public class SnowboyDetector {
     public SnowboyDetector() {
         //init snowboy
         // Assume you put the model related files under /sdcard/snowboy/
-        snowboyDetector = new SnowboyDetect("/sdcard/snowboy/common.res", "/sdcard/snowboy/Amber.pmdl");
-        snowboyDetector.SetSensitivity("0.5");         // Sensitivity for each hotword
+        snowboyDetector = new SnowboyDetect("/sdcard/snowboy/common.res", "/sdcard/snowboy/Amber.pmdl,/sdcard/snowboy/asuka.pmdl");
+        snowboyDetector.SetSensitivity("0.5,0.3");         // Sensitivity for each hotword
         snowboyDetector.SetAudioGain(1.0f);              // Audio gain for detection
         Log.i(TAG, "NumHotwords = " + snowboyDetector.NumHotwords() + ", BitsPerSample = " +
                 snowboyDetector.BitsPerSample() + ", NumChannels = " +
@@ -52,6 +53,7 @@ public class SnowboyDetector {
 
     public static SnowboyDetector getInstance(){
         if (instance == null){
+            Log.i(TAG, "new snowboy");
             instance = new SnowboyDetector();
         }
         return instance;
@@ -66,16 +68,18 @@ public class SnowboyDetector {
     }
 
     public void startRecord() {
-        Log.i(TAG, "start recording");
         if (isRecording) {
+            Log.i(TAG, "already recording");
             return;
         }
 
+        Log.i(TAG, "start recording");
+        ++TIMES_CALLED;
         isRecording = true;
 
-        if (recorder == null){
+//        if (recorder == null){
             initRecorder();
-        }
+//        }
 
         int i = recorder.getState();
         if (i == AudioRecord.STATE_INITIALIZED) {
@@ -85,27 +89,29 @@ public class SnowboyDetector {
         recordingThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                writeAudioDataToFile();
+                writeAudioDataToFile(TIMES_CALLED);
             }
         }, "AudioRecorder Thread");
         recordingThread.start();
     }
 
     public void stopRecord() {
+        Log.i(TAG, "stop recording");
         isRecording = false;
         if (recorder != null) {
             recorder.stop();
-            recorder = null;
+            recorder.release();
+//            recorder = null;
         }
     }
 
-    private void hotwordDetected(){
+    private void hotwordDetected(int index){
         stopRecord();
-        Log.i(TAG, "YAY WE HAVE DETECTED THE AMBER!!!");
-        EventBus.getDefault().post(new MessageEvent("Hotword Detected", MessageEvent.MAIN_ACTIVITY, MessageEvent.HOTWORD_EVENT));
+        Log.i(TAG, "YAY WE HAVE DETECTED THE HOTWORD!!!");
+        EventBus.getDefault().post(new MessageEvent(index + " Hotword Detected", MessageEvent.MAIN_ACTIVITY, MessageEvent.HOTWORD_EVENT));
     }
 
-    private void writeAudioDataToFile() {
+    private void writeAudioDataToFile(int id) {
         /*FileOutputStream os = null;
         try {
             os = new FileOutputStream(filename);
@@ -115,36 +121,48 @@ public class SnowboyDetector {
         }*/
 
         short data[] = new short[bufferSize / 2];
+        int silenceNumber = 0;
+        int sleepy;
 
         int read = 0;
         try {
             while (isRecording) {
                 read = recorder.read(data, 0, data.length);
-                Log.i(TAG, "read length = " + read);
+//                Log.i(TAG, "read length = " + read);
                 if (AudioRecord.ERROR_INVALID_OPERATION != read) {
                     /*os.write(data, 0, read);
                     os.flush();*/
                     int result = snowboyDetector.RunDetection(data, data.length);
-                    Log.i(TAG, " ----> result = " + result);
-                    if (result == 1){
-                        hotwordDetected();
+                    Log.i(TAG, "recorder."+id+" ----> result = " + result);
+                    if (result > 0){
+                        hotwordDetected(result);
+                        break;
                     }
+//                    else if (result == -2){
+//                        ++silenceNumber;
+//                        if (silenceNumber > 15){
+//                            Log.i(TAG, "sleeping: " + silenceNumber);
+//                            Thread.sleep(1000);
+//                        }
+//                    }
+//                    else {
+//                        silenceNumber = 0;
+//                    }
                 }
                 Thread.sleep(30);
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }/* finally {
-            try {
-                os.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }*/
-
-        if (recorder != null) {
-            recorder.stop();
-            recorder = null;
         }
+        finally
+        {
+            if(recorder!=null && recorder.getState()==AudioRecord.STATE_INITIALIZED)
+            {
+                recorder.stop();
+                recorder.release();
+            }
+        }
+
+//        stopRecord();
     }
 }

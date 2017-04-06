@@ -1,7 +1,12 @@
 package scintillate.amber;
 
+/**
+ * Created by rin on 3/5/2017.
+ */
+
 import android.os.AsyncTask;
-import android.util.Log;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -15,43 +20,23 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.greenrobot.eventbus.EventBus;
+import scintillate.amber.dispatchers.Dispatcher;
 
 /**
  * Created by rin on 2/18/2017.
  */
 
-public class HttpTask extends AsyncTask<String, Integer, String> {
+public class AliveTask extends AsyncTask<String, Integer, String> {
     String inputURL;
+    private OnAlive callback;
 
-    public HttpTask(String url, HashMap<String, String> qs){
-        String queryString = "";
-        String q;
-        Iterator it = qs.entrySet().iterator();
-
-        while (it.hasNext()) {
-            if (queryString.isEmpty()){
-                queryString += "?";
-            }
-            else {
-                queryString += "&";
-            }
-            Map.Entry pair = (Map.Entry)it.next();
-            try {
-                q = URLEncoder.encode(pair.getKey().toString(), "UTF-8")
-                    + "="
-                    + URLEncoder.encode(pair.getValue().toString(), "UTF-8");
-                queryString += q;
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-            it.remove(); // avoids a ConcurrentModificationException
-        }
-        inputURL = url + queryString;
+    public AliveTask(OnAlive dispatcher){
+        this.callback = dispatcher;
+        inputURL = Settings.PC_COM_SERVER + "alive";
         System.out.println(inputURL);
     }
 
-    public HttpTask(String url){
+    public AliveTask(String url){
         inputURL = url;
     }
 
@@ -71,7 +56,8 @@ public class HttpTask extends AsyncTask<String, Integer, String> {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
+            return "failed";
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
@@ -86,9 +72,11 @@ public class HttpTask extends AsyncTask<String, Integer, String> {
 
     protected void onPostExecute(String result) {
         // this is executed on the main thread after the process is over
-        // update your UI here
-        if (result.equals("living")) {
-            EventBus.getDefault().post(new MessageEvent("Computer Host Alive", MessageEvent.ACTION_HANDLER, MessageEvent.COMPUTER_AWAKE_EVENT));
+        // update your UI here{
+        if (result.indexOf("living") == 0) {
+            String currentApplication = result.substring(6);
+            EventBus.getDefault().post(new MessageEvent(currentApplication, MessageEvent.ACTION_HANDLER, MessageEvent.COMPUTER_AWAKE_EVENT));
         }
+        callback.onAlive(result);
     }
 }

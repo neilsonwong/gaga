@@ -18,6 +18,7 @@ public class Fragment {
     public ArrayList<Modifier> modifiers;
     public Fragment prev = null;
     public Fragment next = null;
+    public boolean isGeneric = true;
 
     public Fragment(String word){
         base = word;

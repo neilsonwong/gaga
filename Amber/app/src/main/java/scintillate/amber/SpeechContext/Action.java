@@ -16,6 +16,7 @@ public class Action extends Fragment {
     public String acceptedTarget = null;
     public Target target = null;
     public String actionWord;
+    public boolean isGeneric = false;
 
     public Action(String word) {
         this(word, word, -1);

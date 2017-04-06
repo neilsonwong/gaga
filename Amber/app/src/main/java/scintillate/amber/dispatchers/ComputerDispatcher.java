@@ -7,24 +7,52 @@ import java.net.InetAddress;
 import scintillate.amber.HttpTask;
 import scintillate.amber.MagicPacketTask;
 import scintillate.amber.SpeechContext.Command;
+import scintillate.amber.Settings;
 
 /**
  * Created by rin on 2/26/2017.
  */
 
 public class ComputerDispatcher {
-
-    public static String getApp(){
-        return "computer";
-    }
+    public static boolean turningOn = false;
 
     public static int handle(Command c){
-        return 0;
+        System.out.println("computer");
+        int runStatus = 0;
+        //run command
+        switch (c.getAction()) {
+            case "turn":
+                String mod = c.getMod();
+                if (mod != null){
+                    if (mod.equals("on")){
+                        turnOn();
+                    }
+                    else if (mod.equals("off")){
+                        turnOff();
+                    }
+                    else {
+                        runStatus = 1;
+                    }
+                }
+                break;
+            case "sleep":
+                sleep();
+                break;
+            case "switch":
+                switchAudio();
+                break;
+            default:
+                runStatus = 1;
+        }
+        return runStatus;
     }
 
     public static void turnOn(){
-        String mac = "BC-5F-F4-AE-61-0F";
-        new MagicPacketTask().execute(mac);
+        if (!turningOn) {
+            turningOn = true;
+            String mac = Settings.devices.get("Neilson PC").MAC;
+            new MagicPacketTask().execute(mac);
+        }
     }
 
     public static void turnOff(){
@@ -40,6 +68,8 @@ public class ComputerDispatcher {
     }
 
     private static void exec(String application, String task){
-        new HttpTask("http://192.168.0.113:3000/" + application + "/" + task).execute();
+        new HttpTask(Settings.PC_COM_SERVER + application + "/" + task).execute();
     }
+
+
 }
