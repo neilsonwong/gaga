@@ -13,6 +13,7 @@
     "clementine-remote": "git://github.com/neilsonwong/node-clementine-remote.git",
     "express": "^4.14.1",
     "fs-find": "^0.4.0",
+    "jsdom": "^9.11.0",
     "request": "^2.79.0",
     "robotjs": "^0.4.5"
   }

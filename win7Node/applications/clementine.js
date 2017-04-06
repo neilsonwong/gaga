@@ -179,11 +179,11 @@ Clementine.prototype.start = function(){
 };
 
 Clementine.prototype.play = function(){
-    return this.primitive("play");
+    return this.primitive("playpause");
 };
 
 Clementine.prototype.pause = function(){
-    return this.primitive("pause");
+    return this.primitive("playpause");
 };
 
 Clementine.prototype.next = function(){
@@ -209,16 +209,26 @@ Clementine.prototype.changeVolume = function(vol){
     return this.client.set_volume(vol);
 };
 
+Clementine.prototype.info = function(){
+    if (this.ready){
+        return this.client.info();
+    }
+    else {
+        return ("clementine not ready")
+    }
+};
+
 Clementine.prototype.primitive = function(action){
-    return new Promise(function(resolve, reject){
+    return new Promise((resolve, reject) => {
         if (this.ready){
+            // console.log("running primitive");
             this.client[action]();
             return resolve(true);
         }
         else {
             reject("clementine not ready")
         }
-    }.bind(this));
+    });
 };
 
 Clementine.prototype.isRunning = function(){
@@ -241,6 +251,7 @@ Clementine.prototype.Commands = [
     "CLEMENTINE PREV",
     "CLEMENTINE VOL UP",
     "CLEMENTINE VOL DOWN",
+    "CLEMENTINE INFO",
 ];
 
 Clementine.prototype.handle = function(cmd){
@@ -271,6 +282,9 @@ Clementine.prototype.handle = function(cmd){
                 case "CLEMENTINE VOL DOWN":
                     instance.softer();
                     break;
+                case "CLEMENTINE INFO":
+                    instance.info();
+                    break;
                 default:
                     console.log(cmd + " not yet implemented in clementine");
             }
@@ -278,6 +292,50 @@ Clementine.prototype.handle = function(cmd){
     }
 }
 
+Clementine.prototype.isActive = function(){
+    let resolved = false;
+    return new Promise((resolve, reject) => {
+        this.isRunning()
+        .then((running) => {
+            //if it's not running we are DONE
+            if (!running){
+                resolved = true;
+                resolve({
+                    name: "music",
+                    active: null
+                });
+            }
+        })
+        .catch(function(){
+            console.log("clem 1");
+        })
+        .then(() => {
+            if (!resolved){
+                console.log("clem not yet resolved")
+                Promise.resolve(this.getInstance())
+                .then(function(instance){
+                    let active = {
+                        name: "music",
+                    };
+                    let state = instance.info();
+                    if (state === "Playing"){
+                        active.active = true;
+                    }
+                    else if (state === "Paused"){
+                        active.active = false;
+                    }
+                    else {
+                        active.active = null;
+                    }
+                    resolve(active);
+                });
+            }
+        })
+        .catch(function(){
+            console.log("clem 2");
+        });
+    });
+}
 
 let portInUse = function(port, callback) {
     var server = net.createServer(function(socket) {

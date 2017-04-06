@@ -10,6 +10,24 @@ Commands.init = function (modules){
     Commands.addFunctions();
 }
 
+Commands.getActive = function(){
+    let modName;
+    let maybeActive = [];
+    for (modName in Commands.modules){
+        try {
+            if (Commands.modules[modName].isActive !== undefined){
+                maybeActive.push(Commands.modules[modName].isActive());
+                // console.log(modName);
+            }
+        }
+        catch(e){
+            console.log("error getting active modules");
+        }
+    }
+    // console.log(maybeActive.length);
+    return maybeActive;
+}
+
 Commands.addFunctions = function(){
     let a, modName, cmd;
     for (modName in Commands.modules){

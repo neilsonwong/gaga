@@ -8,6 +8,7 @@ const execFile = childProcess.execFile;
 const find = require("fs-find");
 const CommandInterface = require("../commandInterface");
 const MPCPath = "C:/Program\ Files\ (x86)/Combined\ Community\ Codec\ Pack/MPC/mpc-hc.exe";
+const jsdom = require("jsdom");
 
 function MPC(){}
 MPC.settings = config.appSettings.mpc;
@@ -43,6 +44,27 @@ MPC.handle = function(rawCmd, extras){
     }
 };
 
+MPC.getVariables = function(){
+    return new Promise((resolve, reject) => {
+        request.get('http://localhost:13579/variables.html',
+        function(err, res, body){
+            jsdom.env(
+                body,
+                ["http://code.jquery.com/jquery.js"],
+                function (err, window) {
+                    let vars = {};
+                    let addVars = ["filepatharg", "filepath", "filedirarg", "filedir", "state", 
+                        "statestring", "position", "positionstring", "duration", "durationstring",
+                        "volumelevel", "muted", "playbackrate", "reloadtime"];
+                    for (let i = 0; i < addVars.length; ++i){
+                        vars[addVars[i]] = window.$('#'+addVars[i]).html();
+                    }
+                    resolve(vars);
+                }
+            );
+        });
+    });
+}
 
 MPC.post = function(command, extras){
     let cmd = MPC.commandEnum[command];
@@ -193,5 +215,56 @@ MPC.start = function(){
         }, 5000);
     });
 };
+
+MPC.isActive = function(){
+    var mpcRunning;
+    return new Promise((resolve, reject) => {
+        MPC.isRunning()
+        .then((running) => {
+            mpcRunning = running;
+            if (!running){
+                resolve({
+                    name: "video",
+                    active: null
+                });
+            }
+            else {
+                console.log("cool runnings");
+            }
+        })
+        .catch(function(){
+            console.log("mpc 1");
+        })
+        .then(() => {
+            if (mpcRunning){
+                MPC.getVariables()
+                .then((vars) => {
+                    if (vars.state === '2'){
+                        resolve({
+                            name: "video",
+                            active: true
+                        });
+                    }
+                    else if (vars.state === '1'){
+                        resolve({
+                            name: "video",
+                            active: false 
+                        });
+                    }
+                    else {
+                        resolve({
+                            name: "video",
+                            active: null
+                        });
+                    }
+                });
+            }
+        })
+        .catch(function(){
+            console.log("mpc 2");
+        });
+    });
+
+}
 
 module.exports = MPC;

@@ -18,8 +18,6 @@ Commands.init({
 	"mpc" : MPC 
 });
 
-//repl.start("> ").context.c = Commands;
-
 app.get("/", function (req, res) {
   res.send('Hello World!')
 });
@@ -35,9 +33,36 @@ app.get("/:application/:action", function(req, res){
 });
 
 app.get("/alive", function (req, res) {
-  res.send("living");
+		Promise.all(Commands.getActive())
+		.then((apps) => { 
+			console.log("alives: " + apps);
+			console.log(JSON.stringify(apps));
+			//no more races :(
+			let app = null;
+			let livings = "living";
+			for (let i = 0; i < apps.length; ++i){
+				if (apps[i].active === true){
+					app = apps[i];
+					break;
+				}
+				else if (apps[i].active === false){
+					app = apps[i];
+				}
+			}
+			if (app && app.name){
+				livings += app.name;
+			}
+			res.send(livings);
+		})
+		.catch(function(e){
+			console.log("huh");
+			console.log(e);
+		});
 });
 
 app.listen(3000, function () {
   console.log("server listening on port 3000!")
 });
+
+
+// repl.start("> ").context.c = Commands;
